@@ -177,6 +177,10 @@ local function get_or_create_buffer(filename)
     return vim.fn.bufadd(filename)
 end
 
+function string.starts_with(str, start)
+    return str:sub(1, #start) == start
+end
+
 function M.nav_file(id)
     log.trace("nav_file(): Navigating to", id)
     local idx = Marked.get_index_of(id)
@@ -186,7 +190,10 @@ function M.nav_file(id)
     end
 
     local mark = Marked.get_marked_file(idx)
-    local filename = vim.fs.normalize(mark.filename)
+    local filename = mark.filename
+    if not filename:starts_with("oil:///") then
+        filename = vim.fs.normalize(mark.filename)
+    end
     local buf_id = get_or_create_buffer(filename)
     local set_row = not vim.api.nvim_buf_is_loaded(buf_id)
 
